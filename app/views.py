@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from rest_framework.exceptions import NotFound
 
 #import class in serializer
 from app.serializers import TenisSerializer
@@ -7,22 +8,21 @@ from app.serializers import TenisSerializer
 from app.models import Tenis
 
 #imports rest_framework
-from rest_framework.decorators import  api_view
+from rest_framework.views import  APIView
+from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from rest_framework import status
 
-#methods for acess in view
-@api_view(['GET', 'POST'])
-def tenis_list(request):
+class Tenis_List(APIView):
 
     #return all products
-    while(request.method == 'GET'): 
+    def get(self, request):
         tenis = Tenis.objects.all()
         serializer = TenisSerializer(tenis, many = True)
         return Response(serializer.data)
-
+        
     #for post, return the data and save
-    if request.method == 'POST':
+    def post(self, request):
         serializer = TenisSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -31,25 +31,27 @@ def tenis_list(request):
         #for error, response 'status'
         return Response(serializer.errors, status= status.HTTP_400_BAD_REQUEST)
 
-#get details, changes and delete object
-@api_view(['GET', 'PUT', 'DELETE'])
-def tenis_sett(request, pk):
+#methods for acess in view
+class Tenis_Details(APIView):
 
-    #get object in database
-    try:
-        tenis = Tenis.objects.get(pk=pk)
-    
-    #in case don't found object, return:
-    except Tenis.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    def get_object(self, pk):
+        #get object in database
+        try:
+            return Tenis.objects.get(pk=pk)
+        
+        #in case don't found object, return:
+        except Tenis.DoesNotExist:
+            raise NotFound()
 
     #get object
-    if request.method == 'GET':
+    def get(self, request, pk):
+        tenis = self.get_object(pk)
         serializer = TenisSerializer(tenis)
         return Response(serializer.data)
 
     # for changes, happen request > valid data > save
-    elif request.method == 'PUT':
+    def put(self, request, pk):
+        tenis = self.get_object(pk)
         serializer = TenisSerializer(tenis, data = request.data)
         if serializer.is_valid():
             serializer.save()
@@ -59,6 +61,10 @@ def tenis_sett(request, pk):
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     # for delete, return message successfully 
-    elif request.method == 'DELETE':
+    def delete(self, request, pk):
+        tenis = self.get_object(pk)
         tenis.delete()
         return Response(status = status.HTTP_204_NO_CONTENT)
+
+
+ 

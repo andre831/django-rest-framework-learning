@@ -1,9 +1,9 @@
-from app.views import tenis_list, tenis_sett
+from app.views import Tenis_List, Tenis_Details
 
 from django.urls import path
 
 
 urlpatterns = [
-    path('', tenis_list),
-    path('<int:pk>/', tenis_sett)
+    path('', Tenis_List.as_view()),
+    path('<int:pk>/', Tenis_Details)
 ]

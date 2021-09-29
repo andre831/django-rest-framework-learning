@@ -5,5 +5,5 @@ from django.urls import path
 
 urlpatterns = [
     path('', Tenis_List.as_view()),
-    path('<int:pk>/', Tenis_Details)
+    path('<int:pk>/', Tenis_Details.as_view())
 ]

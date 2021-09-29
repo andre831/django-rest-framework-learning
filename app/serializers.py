@@ -1,7 +1,4 @@
 #import models
-from typing import ClassVar
-
-from django.db.models import fields
 from app.models import Tenis
 
 #imports rest_framework 
